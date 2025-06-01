@@ -1,8 +1,5 @@
 /* --- SVG Import and Export Functions --- */
 
-/**
- * Exports all currently drawn polygons to an SVG file.
- */
 function exportToSVG() {
     if (allPolygons.length === 0) {
         alert("No polygons to export!");
@@ -12,7 +9,6 @@ function exportToSVG() {
     const svgNamespace = "http://www.w3.org/2000/svg";
     const svg = document.createElementNS(svgNamespace, "svg");
 
-    // Calculate bounding box for all polygons to determine SVG viewBox
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
     allPolygons.forEach(polygon => {
         polygon.forEach(point => {
@@ -23,8 +19,7 @@ function exportToSVG() {
         });
     });
 
-    // Add some padding to the viewBox
-    const padding = 0.5; // meters
+    const padding = 0.5;
     minX -= padding;
     minY -= padding;
     maxX += padding;
@@ -33,14 +28,10 @@ function exportToSVG() {
     const width = maxX - minX;
     const height = maxY - minY;
 
-    // Set viewBox attribute: "min-x min-y width height"
-    // SVG's Y-axis is typically top-to-bottom, while canvas might be bottom-to-top.
-    // We'll adjust the Y coordinates during path creation to match SVG's coordinate system.
     svg.setAttribute("viewBox", `${minX} ${minY} ${width} ${height}`);
-    svg.setAttribute("width", `${width}m`); // Optional: set units for better display in some viewers
+    svg.setAttribute("width", `${width}m`);
     svg.setAttribute("height", `${height}m`);
 
-    // Add a comment for attribution
     const comment = document.createComment(`
 Space Syntax Nova™ 1.8.1 © 2025
 Designed by Hatef Jafari Sharami. All Rights Reserved.
@@ -50,26 +41,22 @@ Contact: hatef@sharami.me
 `);
     svg.appendChild(comment);
 
-
     allPolygons.forEach((polygon, index) => {
         const path = document.createElementNS(svgNamespace, "path");
-        let d = "M "; // Move to command
-
+        let d = "M ";
         polygon.forEach((point, i) => {
             if (i === 0) {
                 d += `${point.x} ${point.y}`;
             } else {
-                d += ` L ${point.x} ${point.y}`; // Line to command
+                d += ` L ${point.x} ${point.y}`;
             }
         });
-        d += " Z"; // Close path
+        d += " Z";
 
         path.setAttribute("d", d);
         path.setAttribute("fill", "none");
         path.setAttribute("stroke", "red");
-        path.setAttribute("stroke-width", "0.02"); // Adjust stroke width for meters
-
-        // Add an ID for easier identification if needed
+        path.setAttribute("stroke-width", "0.02");
         path.setAttribute("id", `polygon-${index + 1}`);
 
         svg.appendChild(path);
@@ -89,10 +76,6 @@ Contact: hatef@sharami.me
     showMessageBox("Polygons exported to SVG!");
 }
 
-/**
- * Imports polygons from an SVG file.
- * Supports basic <path>, <polygon>, <rect>, and <circle> elements.
- */
 function importFromSVG() {
     const input = document.createElement("input");
     input.type = "file";
@@ -108,20 +91,14 @@ function importFromSVG() {
                 const svgContent = e.target.result;
                 const parser = new DOMParser();
                 const svgDoc = parser.parseFromString(svgContent, "image/svg+xml");
-
                 const importedPolygons = [];
 
-                // Define a scaling factor: 1 SVG unit = 1/28.35 meters
-                // This assumes the SVG was designed where 28.35 units represent 1 meter.
                 const svgToMeterScaleFactor = 1 / 28.35;
 
-                // Helper function to apply transformations to a set of points
                 const applyTransformations = (points, transformAttribute) => {
                     if (!transformAttribute) return points;
 
                     let transformedPoints = [...points];
-
-                    // Parse individual transform functions (e.g., translate(x,y) rotate(a))
                     const transformFunctions = transformAttribute.match(/(\w+\s*\([^)]+\))/g);
                     if (!transformFunctions) return transformedPoints;
 
@@ -129,9 +106,9 @@ function importFromSVG() {
                         if (func.startsWith("translate(")) {
                             const match = func.match(/translate\(([^)]+)\)/);
                             if (match) {
-                                const values = match[1].split(/[,\\s]+/).map(Number);
+                                const values = match[1].split(/[, ]+/).map(Number);
                                 const tx = (values[0] || 0) * svgToMeterScaleFactor;
-                                const ty = (values[1] || 0) * svgToMeterScaleFactor; // ty is optional, defaults to 0
+                                const ty = (values[1] || 0) * svgToMeterScaleFactor;
 
                                 transformedPoints = transformedPoints.map(point => ({
                                     x: point.x + tx,
@@ -141,18 +118,13 @@ function importFromSVG() {
                         } else if (func.startsWith("rotate(")) {
                             const match = func.match(/rotate\(([^)]+)\)/);
                             if (match) {
-                                const rotateValues = match[1].split(/[,\\s]+/).map(Number);
-                                const angle = rotateValues[0] * Math.PI / 180; // Convert to radians
-                                // For rotation, we need a center of rotation.
-                                // If not provided, it's usually (0,0) or the element's local origin.
-                                // Here, we'll try to use the bounding box center for a more intuitive rotation.
-                                // This is a simplification and might not perfectly match SVG's behavior for all cases.
+                                const rotateValues = match[1].split(/[, ]+/).map(Number);
+                                const angle = rotateValues[0] * Math.PI / 180;
                                 let cx, cy;
-                                if (rotateValues[1] !== undefined && rotateValues[2] !== undefined) {
+                                if (rotateValues.length === 3) {
                                     cx = rotateValues[1] * svgToMeterScaleFactor;
                                     cy = rotateValues[2] * svgToMeterScaleFactor;
                                 } else {
-                                    // Calculate approximate center for rotation if not specified
                                     const minX = Math.min(...transformedPoints.map(p => p.x));
                                     const minY = Math.min(...transformedPoints.map(p => p.y));
                                     const maxX = Math.max(...transformedPoints.map(p => p.x));
@@ -162,127 +134,74 @@ function importFromSVG() {
                                 }
 
                                 transformedPoints = transformedPoints.map(point => {
-                                    const translatedX = point.x - cx;
-                                    const translatedY = point.y - cy;
-                                    const rotatedX = translatedX * Math.cos(angle) - translatedY * Math.sin(angle);
-                                    const rotatedY = translatedX * Math.sin(angle) + translatedY * Math.cos(angle);
-                                    return { x: rotatedX + cx, y: rotatedY + cy };
+                                    const dx = point.x - cx;
+                                    const dy = point.y - cy;
+                                    return {
+                                        x: dx * Math.cos(angle) - dy * Math.sin(angle) + cx,
+                                        y: dx * Math.sin(angle) + dy * Math.cos(angle) + cy
+                                    };
                                 });
                             }
                         }
-                        // TODO: Implement scale, skewX, skewY, matrix if needed for more complex transformations
                     });
 
                     return transformedPoints;
                 };
 
-                // Handle <path> elements
-                const paths = svgDoc.querySelectorAll("path");
-                paths.forEach(path => {
-                    const dAttribute = path.getAttribute("d");
-                    const transformAttribute = path.getAttribute("transform");
-                    if (dAttribute) {
-                        const points = [];
-                        const commands = dAttribute.match(/[MLZ][^MLZ]*/g);
+                // --- New: Parse <style> block to map class selectors to inline styles ---
+                const classStyleMap = {};
+                const styleTags = svgDoc.querySelectorAll("style");
 
-                        commands.forEach(cmd => {
-                            const type = cmd[0];
-                            const values = cmd.substring(1).trim().split(/[,\\s]+/).map(Number);
-
-                            if (type === 'M' || type === 'L') {
-                                for (let i = 0; i < values.length; i += 2) {
-                                    points.push({ x: values[i] * svgToMeterScaleFactor, y: values[i + 1] * svgToMeterScaleFactor });
-                                }
-                            }
-                        });
-
-                        let processedPoints = points;
-                        if (transformAttribute) {
-                            processedPoints = applyTransformations(points, transformAttribute);
-                        }
-
-                        if (processedPoints.length >= 3) {
-                            importedPolygons.push(processedPoints);
-                        }
+                styleTags.forEach(styleTag => {
+                    const cssText = styleTag.textContent;
+                    const regex = /\.([\w-]+)\s*{([^}]+)}/g;
+                    let match;
+                    while ((match = regex.exec(cssText)) !== null) {
+                        const className = match[1];
+                        const styles = match[2].trim();
+                        classStyleMap[className] = styles;
                     }
                 });
 
-                // Handle <polygon> elements
+                // --- Helper to apply class styles as inline style attribute ---
+                const applyClassStyles = (element) => {
+                    const classAttr = element.getAttribute("class");
+                    if (!classAttr) return;
+                    const classNames = classAttr.split(/\s+/);
+                    let combinedStyle = "";
+                    classNames.forEach(cls => {
+                        if (classStyleMap[cls]) {
+                            combinedStyle += classStyleMap[cls] + "; ";
+                        }
+                    });
+                    if (combinedStyle.trim()) {
+                        element.setAttribute("style", combinedStyle.trim());
+                    }
+                };
+
+                // Process polygons
                 const polygons = svgDoc.querySelectorAll("polygon");
                 polygons.forEach(polygon => {
+                    applyClassStyles(polygon);
                     const pointsAttribute = polygon.getAttribute("points");
                     const transformAttribute = polygon.getAttribute("transform");
                     if (pointsAttribute) {
-                        const points = pointsAttribute.trim().split(/[,\\s]+/).map(Number);
+                        const values = pointsAttribute.trim().split(/[\s,]+/).map(Number);
                         const polygonPoints = [];
-                        for (let i = 0; i < points.length; i += 2) {
-                            polygonPoints.push({ x: points[i] * svgToMeterScaleFactor, y: points[i + 1] * svgToMeterScaleFactor });
+                        for (let i = 0; i < values.length; i += 2) {
+                            polygonPoints.push({ x: values[i] * svgToMeterScaleFactor, y: values[i + 1] * svgToMeterScaleFactor });
                         }
-
                         let processedPoints = polygonPoints;
                         if (transformAttribute) {
                             processedPoints = applyTransformations(polygonPoints, transformAttribute);
                         }
-
                         if (processedPoints.length >= 3) {
                             importedPolygons.push(processedPoints);
                         }
                     }
                 });
 
-                // Handle <rect> elements
-                const rects = svgDoc.querySelectorAll("rect");
-                rects.forEach(rect => {
-                    const x = parseFloat(rect.getAttribute("x") || 0) * svgToMeterScaleFactor;
-                    const y = parseFloat(rect.getAttribute("y") || 0) * svgToMeterScaleFactor;
-                    const width = parseFloat(rect.getAttribute("width") || 0) * svgToMeterScaleFactor;
-                    const height = parseFloat(rect.getAttribute("height") || 0) * svgToMeterScaleFactor;
-                    const transformAttribute = rect.getAttribute("transform");
-
-                    let rectPoints = [
-                        { x: x, y: y },
-                        { x: x + width, y: y },
-                        { x: x + width, y: y + height },
-                        { x: x, y: y + height }
-                    ];
-
-                    if (transformAttribute) {
-                        rectPoints = applyTransformations(rectPoints, transformAttribute);
-                    }
-                    if (rectPoints.length >= 3) {
-                        importedPolygons.push(rectPoints);
-                    }
-                });
-
-                // Handle <circle> elements (approximated as a polygon)
-                const circles = svgDoc.querySelectorAll("circle");
-                circles.forEach(circle => {
-                    const cx = parseFloat(circle.getAttribute("cx") || 0) * svgToMeterScaleFactor;
-                    const cy = parseFloat(circle.getAttribute("cy") || 0) * svgToMeterScaleFactor;
-                    const r = parseFloat(circle.getAttribute("r") || 0) * svgToMeterScaleFactor;
-                    const transformAttribute = circle.getAttribute("transform");
-
-                    if (r > 0) {
-                        const segments = 32;
-                        const circlePoints = [];
-                        for (let i = 0; i < segments; i++) {
-                            const angle = (i / segments) * 2 * Math.PI;
-                            const x = cx + r * Math.cos(angle);
-                            const y = cy + r * Math.sin(angle);
-                            circlePoints.push({ x: x, y: y });
-                        }
-
-                        let processedPoints = circlePoints;
-                        if (transformAttribute) {
-                            processedPoints = applyTransformations(circlePoints, transformAttribute);
-                        }
-
-                        if (processedPoints.length >= 3) {
-                            importedPolygons.push(processedPoints);
-                        }
-                    }
-                });
-
+                // (Optional: Also extend <path>, <rect>, <circle> to support class styles in future)
 
                 if (importedPolygons.length > 0) {
                     saveState();

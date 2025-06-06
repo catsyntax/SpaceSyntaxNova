@@ -1,0 +1,560 @@
+html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      user-select: none; /* prevent text selection while dragging */
+    }
+    #canvas-container {
+      flex: 1;
+      position: relative;
+      cursor: grab;
+    }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      padding:0;
+      margin-top: 2.5%;
+      margin-left: 2.5%;
+      width: 95%;
+      height: 90%;
+    }
+    #controls {
+      justify-content: left;
+      align-items: left;
+      width: 98.5%;      
+      padding: 10px;
+      border-top: 1px solid #ccc;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: Arial, sans-serif;
+      user-select: none;
+    }
+    button {
+      background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s;
+    line-height: 1;
+    min-height: 30px;
+    min-width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+    button:hover {
+      background-color: blue;
+      border-radius: 0px;
+      transition-duration: 0.5s;
+    }
+    icon{
+      font-size: 12pt;
+    }
+    #bt-tx {
+    font-weight: bold;
+    font-size: 8pt;
+    margin-left:-5px;
+    padding-right:0px;
+    }
+   #copyright {
+    font-size: 8pt;
+    font-weight: bold;
+    min-width: 300px;
+    border-right: 2px solid #000; padding-right: 10px;
+    border-left: 2px solid #000; padding-left: 10px;
+    text-align: left;
+    }
+    a{
+    text-decoration:none; color:#000;
+    }
+   #stats-display{
+    font-size: 8pt;
+   }
+   
+    #polygon-list-box {
+      position: fixed;
+      top: 20px; 
+      right: 20px;
+      width: 250px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000; 
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      resize: both;
+      min-width: 200px;
+      min-height: 100px;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+
+    #polygon-list-box.minimized {
+      height: auto;
+      min-height: unset;
+      max-height: unset;
+    }
+
+    #polygon-list-header {
+      background-color: #000;
+      color: #fff;
+      padding: 8px 12px;
+      cursor: grab;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top-left-radius: 7px;
+      border-top-right-radius: 7px;
+    }
+
+    #polygon-list-header h3 {
+      margin: 0;
+      font-size: 1em;
+    }
+
+    #polygon-list-header .header-buttons {
+      display: flex;
+      gap: 5px;
+    }
+
+    #polygon-list-header .control-button {
+      background: none;
+      border: 1px solid #fff;
+      color: #fff;
+      font-size: 0.8em;
+      width: 20px;
+      height: 20px;
+      line-height: 1;
+      text-align: center;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      padding: 0;
+    }
+
+    #polygon-list-header .control-button:hover {
+      background-color: blue;
+    }
+
+    #polygon-list-content {
+      padding: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    #polygon-list-box.minimized #polygon-list-content {
+      display: none;
+    }
+
+    #polygon-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #polygon-list li {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 6px 0;
+      border-bottom: 1px dashed #eee;
+      font-size: 0.9em;
+    }
+
+    #polygon-list li:last-child {
+      border-bottom: none;
+    }
+
+    #polygon-list li span.polygon-name { 
+      cursor: pointer; 
+      flex-grow: 1;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+
+    #polygon-list li span.polygon-details {
+      font-size: 0.8em;
+      color: #555; 
+    }
+
+    #polygon-list li span.polygon-name.selected { 
+      font-weight: bold;
+      color: blue;
+    }
+
+    #polygon-list li .polygon-actions {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      width: 100%;
+      justify-content: flex-end; 
+    }
+
+    #polygon-list li .polygon-actions button {
+      background-color: #f44336; 
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 3px 8px;
+      cursor: pointer;
+      font-size: 0.7em;
+      transition: background-color 0.2s;
+    }
+
+    #polygon-list li .polygon-actions button:hover {
+      background-color: #d32f2f;
+    }
+
+    #polygon-list li .polygon-actions button.hide-button {
+      background-color: #4CAF50; 
+    }
+
+    #polygon-list li .polygon-actions button.hide-button:hover {
+      background-color: #45a049;
+    }
+
+    #button-box {
+      position: fixed;
+      top: 20px; 
+      left: 20px;
+      width: 70px;
+      background-color: rgba(255, 255, 255, 0.8);
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+      resize: both;
+      min-width: 200px;
+      min-height: 500px;
+      max-width: 90vw;
+      max-height: 90vh;
+    }
+
+    #button-box.minimized {
+      height: auto;
+      min-height: unset;
+      max-height: unset;
+    }
+
+    #button-descriptions-header {
+      background-color: #000;
+      color: #fff;
+      padding: 8px 12px;
+      cursor: grab;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top-left-radius: 7px;
+      border-top-right-radius: 7px;
+    }
+
+    #button-descriptions-header h3 {
+      margin: 0;
+      font-size: 1em;
+    }
+
+    #button-descriptions-header .header-buttons .control-button {
+      background: none;
+      border: 1px solid #fff;
+      color: #fff;
+      font-size: 0.8em;
+      width: 20px;
+      height: 20px;
+      line-height: 1;
+      text-align: center;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      padding: 0;
+    }
+
+    #button-descriptions-header .header-buttons .control-button:hover {
+      background-color: blue;
+    }
+
+    #button-descriptions-content {
+      padding: 10px;
+      max-height: 85%;
+      overflow-y: auto;
+    }
+
+    #button-box.minimized #button-descriptions-content {
+      display: none;
+    }
+
+    #descriptions-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    #descriptions-list li {
+      padding: 6px 0;
+      border-bottom: 1px dashed #eee;
+      font-size: 0.9em;
+      display: flex; /* Make list items a flex container */
+      align-items: center; /* Align items vertically */
+      gap: 5px; /* Space between button and text */
+    }
+
+    #descriptions-list li:last-child {
+      border-bottom: none;
+    }
+
+    #descriptions-list li span {
+      display: block;
+      flex-grow: 1; /* Allow description span to take available space */
+    }
+
+    /* Style for the new buttons next to descriptions */
+    #descriptions-list li .box-button {
+      background-color: #000; 
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 6px;
+      cursor: pointer;
+      font-size: 0.7em;
+      transition: background-color 0.2s;
+      line-height: 1; /* Adjust line height for better vertical alignment */
+      height: 30px; /* Fixed height for consistency */
+      width: 30px; /* Fixed width for consistency */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #descriptions-list li .span {
+      font-weight: bold;
+    }
+    #descriptions-list li .box-button:hover {
+      background-color: blue;
+    }
+    
+    
+
+
+
+
+/* Tutorial Overlay Styles */
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 255, 0.1);
+  z-index: 9999; 
+  display: none;
+  justify-content: center;
+  align-items: center;
+  pointer-events: all; 
+}
+
+.tutorial-step {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.tutorial-step.hidden {
+  display: none;
+}
+
+.tutorial-cutout-container {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden; 
+  box-shadow: 0 0 0 9999px rgba(0, 0, 255, 0.5); 
+  pointer-events: 
+}
+
+.tutorial-cutout {
+  width: 100%;
+  height: 100%;
+  background-color: transparent; /* Makes the circle area transparent */
+  border-radius: 50%;
+}
+
+.tutorial-cutout-container.top-left {
+  top: 20px;
+  left: 20px;
+}
+
+.tutorial-cutout-container.top-right {
+  top: 20px;
+  right: 20px;
+}
+
+.tutorial-cutout-container.bottom-right {
+  bottom: 20px;
+  right: 20px;
+}
+
+.tutorial-description-box {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+  max-width: 300px;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.tutorial-description-box h1 {
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 10px;
+  color: #000;
+}
+
+.tutorial-description-box h6 {
+  font-size: 0.9em;
+  margin-bottom: 15px;
+  line-height: 1.4;
+  color: #555;
+}
+
+.tutorial-ok-button {
+  display: block;
+  padding:0;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.3s ease;
+  margin-left: 0; /* Aligned left */
+  padding: 4px 9px;
+}
+
+.tutorial-ok-button:hover {
+  background-color: #0056b3;
+}
+
+/* Positioning for description boxes relative to cutouts */
+.tutorial-description-box.bottom-left-description { /* Specific for step 1 */
+  top: calc(20px + 150px + 15px); /* Bellow the circle + some margin */
+  left: 20px; /* Align with the left edge of the circle container */
+}
+
+.tutorial-description-box.bottom-right-description { /* Specific for step 2 */
+  top: calc(20px + 150px + 15px); /* Bellow the circle + some margin */
+  right: 20px; /* Align with the right edge of the circle container */
+}
+
+.tutorial-description-box.top-description { /* Specific for step 3 */
+  bottom: calc(20px + 150px + 15px); /* Above the circle + some margin */
+  right: 20px; /* Align with the right edge of the circle container */
+}
+.tutorial-cutout-container.center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tutorial-description-box.center-description {
+  top: 50%;
+  left: 50%;
+  margin-top:-180px;
+  transform: translate(-50%, -50%);
+  margin-bottom: 160px;
+  text-align: left;
+}
+
+#pan-box {
+  position: absolute;
+  bottom: calc(5.5% + 60px);
+  right: 3%;
+  width: 90px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid #ccc;
+  border-radius: 100px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  font-family: Arial, sans-serif;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+ }
+ 
+#zoom-box {
+ position: absolute;
+  bottom: 6%;
+  right:  calc(3% + 10px);
+  width: 90px;
+  background-color: rgba(255, 255, 255, 0.6);
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  z-index: 999;
+  font-family: Arial, sans-serif;
+  padding: 8px 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+ }
+ 
+ .switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
+  margin-right: 10px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: blue;
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}

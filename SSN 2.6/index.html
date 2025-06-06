@@ -1,0 +1,267 @@
+<!--
+  Space Syntax Nova™ 2.6 © 2025
+  Designed by Hatef Jafari Sharami. All Rights Reserved.
+
+  This code is for scientific and academic purposes only. Commercial use is prohibited.
+  Please attribute the source and designer when using.
+
+  For inquiries, contact: hatef@sharami.me
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Space Syntax Nova™ 2.6 © 2025</title>
+      <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div id="canvas-container">
+  <canvas id="draw-canvas"></canvas>
+<div id="pan-box">
+  <button class="box-button" onclick="panCanvas(0, 20)">↑</button>
+  <div style="display:flex; justify-content:space-between; width:100%;">
+    <button class="box-button" onclick="panCanvas(20, 0)">←</button>
+    <button class="box-button" onclick="panCanvas(-20, 0)">→</button>
+  </div>
+  <button class="box-button" onclick="panCanvas(0, -20)">↓</button>
+</div>
+<div id="zoom-box">
+  <div style="display:flex; justify-content:space-between; width:80%;">
+        <button class="box-button" onclick="zoomOut()"><icon>-</icon></button>
+        <button class="box-button" onclick="zoomIn()"><icon>+</icon></button>
+  </div>
+</div>
+
+</div>
+
+<div id="polygon-list-box">
+  <div id="polygon-list-header">
+    <h3><icon style="padding-right:10px;">&#9750;</icon>Polygons <span id="polygon-count"></span></h3>
+    <div class="header-buttons">
+      <button id="minimize-polygon-list" class="control-button">-</button>
+      </div>
+  </div>
+  <div id="polygon-list-content">
+    <ul id="polygon-list">
+      </ul>
+  </div>
+</div>
+
+<div id="button-box">
+  <div id="button-descriptions-header">
+    <h3><icon style="padding-right:10px;">&#9832;</icon>Actions</h3>
+    <div class="header-buttons">
+      <button id="minimize-button-descriptions" class="control-button">-</button>
+    </div>
+  </div>
+  <div id="button-descriptions-content">
+    <ul id="descriptions-list">
+      <li>
+        <span style="font-weight: bold;">Lines</span>
+      </li>
+      <li>
+        <button class="box-button" onclick="startDrawing()"><icon>&#9998;</icon></button><span>(A) Draw</span>
+      </li>
+      <li>
+        <button class="box-button" onclick="undoLastPoint()"><icon style="rotate: 180deg">&#10132;</icon></button><span>(C+Z) Undo Line</span>
+      </li>
+      <li>
+        <label class="switch"><input type="checkbox" onchange="toggleTrimMode()"><span class="slider"></span></label><span>Trim Lines</span>
+      </li>
+      <li>
+        <button class="box-button" onclick="enableGrabMode()"><icon>&#10035;</icon></button><span>Panning</span>
+      </li>
+      <li>
+        <label class="switch"><input type="checkbox" checked onchange="toggleLengthsVisibility()"><span class="slider"></span></label>
+        <span>Dimensions</span>
+      </li>
+      <li>
+        <label class="switch"><input type="checkbox" checked onchange="togglePolygonsVisibility()"><span class="slider"></span></label>
+        <span>Polygons</span>
+      </li>
+      <li>
+        <label class="switch"><input type="checkbox" onchange="toggleSelectionMode()"><span class="slider"></span></label>
+        <span>Selection Mode</span>
+      </li>
+      <li>
+        <button class="box-button" onclick="unionSelectedPolygons()"><icon>&#8853;</icon></button><span>Union</span>
+        <button class="box-button" onclick="subtractSelectedPolygons()" style="margin-left:-15pt;"><icon>&#8722;</icon></button><span>Subtract</span>
+     </li>
+     <li>
+        <button class="box-button" onclick="deleteSelectedPolygon()"><icon>&#10006;</icon></button><span>Delete</span>
+      </li>
+      <li>
+        <select id="mirrorAxis" style="width: 50px; text-align: center; border-radius: 15px;">
+          <option value="x">X-Axis</option>
+          <option value="y">Y-Axis</option>
+        </select>
+        <button class="box-button" onclick="mirrorSelectedPolygons()"><icon>&#8644;</icon></button><span>Mirror</span>
+      </li>
+      <li>
+        <input type="number" id="rotateAngle" value="0" step="1" style="width: 40px; text-align: center; border-radius: 15px;">
+        <button class="box-button" onclick="rotateSelectedPolygons()"><icon>&#8635;</icon></button><span>Rotate</span>
+      </li>
+      <li>
+        &#8594;<input type="number" id="moveX" value="0.0" step="0.1" style="width: 50px; text-align: center; border-radius: 15px;">
+        &#8595;<input type="number" id="moveY" value="0.0" step="0.1" style="width: 50px; text-align: center; border-radius: 15px;">
+      </li>
+      <li>
+        <button class="box-button" onclick="applyMoveToSelectedPolygons()"><icon>&#10148;</icon></button><span>Move</span>
+        <button class="box-button" onclick="scaleSelectedPolygon()" style="margin-left:-20pt;"><icon>&#9857;</icon></button><span>Scale</span>
+      </li>
+      <li>
+        <span style="font-weight: bold; padding-top: 20px;">SSN Analysis</span>
+      </li>
+      <li>
+        <label class="switch"><input type="checkbox" onchange="renderAnalysis()"><span class="slider"></span></label>
+        <span>Render</span>
+      </li>
+      <li>
+        <label class="switch"><input type="checkbox" onchange="toggleVisibility()"><span class="slider"></span></label>
+        <span>Visibility</span>
+      </li>
+      <li>
+        <label class="switch"><input type="checkbox" onchange="toggleConnectivity()"><span class="slider"></span></label>
+        <span>Connectivity</span>
+      </li>
+      <!--
+      <li>
+        <span style="font-weight: bold;">Save Before Use:</span>
+      </li>
+      <li>
+        <button class="box-button" onclick="generateConnections()"><icon>&#10042;</icon></button><span>Complex Nodes</span>
+      </li>
+      <li>
+        <span>&#9888; Takes Time!!!</span>
+        -->
+      </li>
+    </ul>
+  </div>
+</div>
+
+
+
+
+<div id="controls" style="justify-content:right;"> 
+        <button class="box-button" onclick="undoGlobalAction()"><icon style="rotate: 180deg">&#10132;</icon></button><span>Undo</span>
+        <button class="box-button" onclick="redoGlobalAction()"><icon>&#10132;</icon></button><span>Redo</span>
+        <span><b>|</b></span>
+        <span style="color:blue;"><b>DXF FILES</b></span>
+        <button class="box-button" onclick="exportToDXF()">🖪</button><span id="bt-tx">SAVE FILE</span>
+        <button class="box-button" onclick="importFromDXF()">&#x1F5C0</button><span id="bt-tx">LOAD FILE</span>
+        <span><b>|</b></span>
+        <button class="box-button" onclick="clearAll()"><icon>&#9888;</icon></button><span id="bt-tx">CLEAN ALL</span>
+        <span><b>|</b></span>
+        <button class="box-button" onclick="printPage()"><icon>&#128435;</icon></button><span id="bt-tx">PRINT</span> 
+</div>
+<div id="controls">
+<a href="https://www.sharami.me/ssn" target="_blank">
+<svg x="0px" y="0px" viewBox="0 0 92.7 35.2"" style="fill:#0000FF; height:30px; margin-left:10px;">
+<g>
+	<path class="st0" d="M54.2,17.8c0-4.7,0-9.4,0-14.1c0-0.8,0-0.8,0.8-0.8c1,0,1.9,0,2.9,0c0.7,0,0.7,0,0.7,0.7c0,3.7,0,7.4,0,11.1
+		c0,0.7,0,0.7,0.7,0.7c0.9,0,1.8,0,2.7,0c0.7,0,0.7,0,0.7,0.8c0,0.9,0,1.8,0,2.7c0,0.7,0,0.7,0.7,0.7c1,0,1.9,0,2.9,0
+		c0.6,0,0.6,0,0.6,0.6c0,1,0,1.9,0,2.9c0,0.7,0,0.7,0.7,0.7c0.9,0,1.8,0,2.7,0c0.4,0,0.6-0.1,0.6-0.6c0-0.3,0-0.6,0-0.9
+		c0-6.2,0-12.5,0-18.7c0-0.9,0-0.9,0.8-0.9c1,0,2,0,2.9,0c0.6,0,0.6,0.1,0.7,0.6c0,0.6,0,1.2,0,1.8c0,8.8,0,17.6,0,26.4
+		c0,0.8,0,0.8-0.8,0.8c-1,0-2,0-3,0c-0.6,0-0.6,0-0.6-0.6c0-1,0-1.9,0-2.9c0-0.7,0-0.7-0.8-0.7c-0.9,0-1.9,0-2.8,0
+		c-0.6,0-0.7-0.1-0.7-0.7c0-0.9,0-1.8,0-2.7c0-0.8,0-0.8-0.8-0.8c-0.9,0-1.9,0-2.8,0c-0.6,0-0.7-0.1-0.7-0.7c0-1,0-2,0-2.9
+		c0-0.6-0.1-0.6-0.6-0.6c-0.9,0-1.8,0-2.7,0c-0.5,0-0.6,0.1-0.6,0.6c0,1.1,0,2.3,0,3.4c0,2.6,0,5.2,0,7.8c0,0.8,0,0.8-0.9,0.8
+		c-0.9,0-1.9,0-2.8,0c-0.8,0-0.8,0-0.8-0.8C54.2,27.1,54.2,22.5,54.2,17.8z"/>
+	<path class="st0" d="M13.4,2.9c1.9,0,3.8,0,5.7,0c0.8,0,0.8,0,0.8,0.8c0,0.9,0,1.8,0,2.7c0,0.7,0,0.8,0.8,0.8c1,0,1.9,0,2.9,0
+		c0.4,0,0.5,0.1,0.5,0.5c0,1.1,0,2.3,0,3.4c0,0.4-0.2,0.5-0.5,0.5c-1.1,0-2.2,0-3.4,0c-0.4,0-0.6-0.1-0.6-0.6c0-1,0-2,0-2.9
+		c0-0.7,0-0.7-0.6-0.7c-3.7,0-7.5,0-11.2,0c-0.6,0-0.6,0-0.6,0.6c0,2.3,0,4.5,0,6.8c0,0.8,0,0.8,0.8,0.8c3.6,0,7.1,0,10.7,0
+		c0.2,0,0.4,0,0.6,0c0.6,0,0.6,0.1,0.6,0.7c0,1,0,2,0,2.9c0,0.6,0,0.6,0.6,0.6c1,0,2,0,2.9,0c0.6,0,0.6,0,0.6,0.6c0,2.5,0,5,0,7.5
+		c0,0.6,0,0.6-0.6,0.6c-1,0-1.9,0-2.9,0c-0.7,0-0.7,0-0.7,0.8c0,0.9,0,1.9,0,2.8c0,0.6,0,0.6-0.6,0.6c-1.4,0-2.8,0-4.1,0
+		c-2.5,0-4.9,0-7.4,0c-0.8,0-0.8,0-0.8-0.8c0-0.9,0-1.9,0-2.8c0-0.4-0.2-0.6-0.6-0.6c-1,0-2.1,0-3.1,0c-0.4,0-0.6-0.1-0.6-0.6
+		c0-1.1,0-2.2,0-3.3c0-0.4,0.1-0.6,0.6-0.6c1.1,0,2.2,0,3.3,0c0.5,0,0.6,0.2,0.6,0.6c0,1,0,2,0,2.9c0,0.6,0,0.6,0.6,0.6
+		c3.7,0,7.5,0,11.2,0c0.6,0,0.6,0,0.6-0.6c0-2.3,0-4.6,0-6.9c0-0.7,0-0.7-0.8-0.7c-3.5,0-7.1,0-10.6,0C6.8,20,7,20,7,18.7
+		c0-0.8,0-1.6,0-2.4c0-0.4-0.2-0.6-0.6-0.6c-1,0-1.9,0-2.9,0c-0.8,0-0.8,0-0.8-0.7c0-2.4,0-4.8,0-7.2c0-0.7,0-0.7,0.7-0.7
+		c1,0,1.9,0,2.9,0C7,7.1,7,7.1,7,6.5c0-1,0-1.9,0-2.9c0-0.7,0-0.7,0.7-0.7C9.6,2.9,11.5,2.9,13.4,2.9C13.4,2.9,13.4,2.9,13.4,2.9z"
+		/>
+	<path class="st0" d="M39.2,2.9c1.9,0,3.8,0,5.7,0c0.8,0,0.8,0,0.8,0.8c0,0.9,0,1.8,0,2.7c0,0.7,0,0.8,0.8,0.8c1,0,1.9,0,2.9,0
+		c0.4,0,0.5,0.1,0.5,0.5c0,1.1,0,2.3,0,3.4c0,0.4-0.2,0.5-0.5,0.5c-1.1,0-2.2,0-3.4,0c-0.4,0-0.6-0.1-0.6-0.6c0-1,0-2,0-2.9
+		c0-0.7,0-0.7-0.6-0.7c-3.7,0-7.5,0-11.2,0c-0.6,0-0.6,0-0.6,0.6c0,2.3,0,4.5,0,6.8c0,0.8,0,0.8,0.8,0.8c3.6,0,7.1,0,10.7,0
+		c0.2,0,0.4,0,0.6,0c0.6,0,0.6,0.1,0.6,0.7c0,1,0,2,0,2.9c0,0.6,0,0.6,0.6,0.6c1,0,2,0,2.9,0c0.6,0,0.6,0,0.6,0.6c0,2.5,0,5,0,7.5
+		c0,0.6,0,0.6-0.6,0.6c-1,0-1.9,0-2.9,0c-0.7,0-0.7,0-0.7,0.8c0,0.9,0,1.9,0,2.8c0,0.6,0,0.6-0.6,0.6c-1.4,0-2.8,0-4.1,0
+		c-2.5,0-4.9,0-7.4,0c-0.8,0-0.8,0-0.8-0.8c0-0.9,0-1.9,0-2.8c0-0.4-0.2-0.6-0.6-0.6c-1,0-2.1,0-3.1,0c-0.4,0-0.6-0.1-0.6-0.6
+		c0-1.1,0-2.2,0-3.3c0-0.4,0.1-0.6,0.6-0.6c1.1,0,2.2,0,3.3,0c0.5,0,0.6,0.2,0.6,0.6c0,1,0,2,0,2.9c0,0.6,0,0.6,0.6,0.6
+		c3.7,0,7.5,0,11.2,0c0.6,0,0.6,0,0.6-0.6c0-2.3,0-4.6,0-6.9c0-0.7,0-0.7-0.8-0.7c-3.5,0-7.1,0-10.6,0c-1.5,0-1.3,0-1.3-1.3
+		c0-0.8,0-1.6,0-2.4c0-0.4-0.2-0.6-0.6-0.6c-1,0-1.9,0-2.9,0c-0.8,0-0.8,0-0.8-0.7c0-2.4,0-4.8,0-7.2c0-0.7,0-0.7,0.7-0.7
+		c1,0,1.9,0,2.9,0c0.6,0,0.6,0,0.6-0.6c0-1,0-1.9,0-2.9c0-0.7,0-0.7,0.7-0.7C35.3,2.9,37.2,2.9,39.2,2.9C39.2,2.9,39.2,2.9,39.2,2.9
+		z"/>
+	<path class="st0" d="M81.2,3.7v4.5h-1.4V3.7h-1.6V2.6h4.5v1.1H81.2z M88.7,8.2V4.2h0l-1.4,3.9h-0.9l-1.4-3.9h0v3.9h-1.3V2.6h1.8
+		l1.4,3.7l1.4-3.7H90v5.6H88.7z"/>
+</g>
+</svg></a>
+<span><b>|</b></span>
+<a href="https://github.com/catsyntax/SpaceSyntaxNova/" target="_blank"><span style="color:blue; font-size:10pt; font-weight:bold;">AI Integration (GitHub)</span></a>
+<span id="copyright">Space Syntax Nova™ 2.6 © 2025.
+  </br> All Rights Reserved. Please reach out via hatef@<a href="https://www.sharami.me/" target="_blank">sharami.me</a>.</span>
+  <button class="box-button" onclick="showTutorialStep(1)" style="margin-left:10px;" alt="F1"><icon>&#x1F6C8;</icon></button><span id="bt-tx">(F1) Tutorial</span>
+  <span><b>|</b></span>
+  <span id="stats-display"></span><br>
+</div>
+
+
+
+<div id="tutorial-overlay" class="tutorial-overlay">
+  <div id="tutorial-step-1" class="tutorial-step">
+    <div class="tutorial-cutout-container top-left">
+      <div class="tutorial-cutout circle-cutout"></div>
+    </div>
+    <div class="tutorial-description-box bottom-left-description">
+      <h1>Start drawing and then analyzing from here!</h1>
+      <h6>This area contains your primary drawing and editing tools, and perform spatial analysis.</h6>
+      <button class="tutorial-ok-button" onclick="nextTutorialStep(2)">OKAY!</button>
+    </div>
+  </div>
+
+  <div id="tutorial-step-2" class="tutorial-step hidden">
+    <div class="tutorial-cutout-container center">
+      <div class="tutorial-cutout circle-cutout"></div>
+    </div>
+    <div class="tutorial-description-box center-description">
+      <h1>This is your drawing canvas!</h1>
+      <h6>You can draw, pan, and zoom your spatial layouts here.</h6>
+      <button class="tutorial-ok-button" onclick="nextTutorialStep(3)">OKAY!</button>
+    </div>
+  </div>
+  <div id="tutorial-step-3" class="tutorial-step hidden">
+    <div class="tutorial-cutout-container top-right">
+      <div class="tutorial-cutout circle-cutout"></div>
+    </div>
+    <div class="tutorial-description-box bottom-right-description">
+      <h1>Your Polygon List!</h1>
+      <h6>Here you can see all drawn polygons, select them by holding the shift key, and delete them directly.</h6>
+      <button class="tutorial-ok-button" onclick="nextTutorialStep(4)">GOT IT!</button>
+    </div>
+  </div>
+
+  <div id="tutorial-step-4" class="tutorial-step hidden">
+    <div class="tutorial-cutout-container bottom-right">
+      <div class="tutorial-cutout circle-cutout"></div>
+    </div>
+    <div class="tutorial-description-box top-description">
+      <h1>Manage your file from this toolbar!</h1>
+      <h6>These buttons allow you to Save/Load maps, clear the drawer, and print them.</h6>
+      <button class="tutorial-ok-button" onclick="endTutorial()">PERFECT!</button>
+    </div>
+  </div>
+</div>
+
+    <script src="js/draw.js"></script>
+    <script src="js/boolean.js"></script>
+    <script src="js/analysis.js"></script>
+    <script src="js/render.js"></script>
+    <script src="js/complexnods.js"></script>
+    <script src="js/dxf-parser.min.js"></script>
+    <script src="js/dxf.js"></script>
+    <script src="js/polygonbox.js"></script>
+    <script src="js/actionbox.js"></script>
+    <script src="js/tutorial.js"></script>
+    <script src="js/keyboards.js"></script>
+    
+</body>
+</html>
